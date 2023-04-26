@@ -14,12 +14,12 @@
 # limitations under the License.
 #
 import enum
-import functools
 import itertools
 from typing import Callable, Union
 
 import dask.dataframe as dd
 import numpy as np
+import nvtx
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -56,22 +56,8 @@ except ImportError:
     # Dask < 2021.5.1
     from dask.dataframe.utils import hash_object_dispatch
 
-try:
-    import nvtx
 
-    annotate = nvtx.annotate
-except ImportError:
-    # don't have nvtx installed - don't annotate our functions
-    def annotate(*args, **kwargs):
-        def inner1(func):
-            @functools.wraps(func)
-            def inner2(*args, **kwargs):
-                return func(*args, **kwargs)
-
-            return inner2
-
-        return inner1
-
+annotate = nvtx.annotate
 
 if cudf:
     DataFrameType = Union[pd.DataFrame, cudf.DataFrame]  # type: ignore
